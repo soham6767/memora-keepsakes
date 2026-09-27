@@ -1,1 +1,132 @@
 @import "tailwindcss";
+
+@theme {
+  --color-primary: #b80035;
+  --color-primary-container: #e11d48;
+  --color-primary-fixed: #ffdada;
+  --color-on-primary: #ffffff;
+  --color-on-primary-fixed: #40000c;
+
+  --color-secondary: #6b38d4;
+  --color-secondary-container: #8455ef;
+  --color-secondary-fixed: #e9ddff;
+  --color-on-secondary: #ffffff;
+  --color-on-secondary-fixed: #23005c;
+
+  --color-tertiary: #815100;
+  --color-tertiary-container: #a36700;
+  --color-tertiary-fixed: #ffddb8;
+  --color-on-tertiary-fixed: #2a1700;
+
+  --color-surface: #fff8f5;
+  --color-surface-dim: #e0d8d5;
+  --color-surface-bright: #fff8f5;
+  --color-surface-container: #f4ece8;
+  --color-surface-container-low: #faf2ee;
+  --color-surface-container-lowest: #ffffff;
+  --color-surface-container-high: #eee7e3;
+  --color-surface-container-highest: #e9e1dd;
+
+  --color-on-surface: #1e1b19;
+  --color-on-surface-variant: #5c3f40;
+  --color-outline: #906f70;
+  --color-outline-variant: #e5bdbe;
+
+  --font-serif-editorial: "Playfair Display", Georgia, serif;
+  --font-sans-ui: "Plus Jakarta Sans", -apple-system, sans-serif;
+}
+
+@layer base {
+  html, body {
+    margin: 0;
+    padding: 0;
+    background-color: var(--color-surface);
+    color: var(--color-on-surface);
+    font-family: var(--font-sans-ui);
+    scroll-behavior: smooth;
+  }
+}
+
+/* Custom Typography Utilities */
+.font-display-hero {
+  font-family: var(--font-serif-editorial);
+  font-weight: 600;
+}
+.font-headline-lg {
+  font-family: var(--font-serif-editorial);
+  font-weight: 500;
+}
+.font-headline-md {
+  font-family: var(--font-serif-editorial);
+  font-weight: 500;
+}
+.font-headline-sm {
+  font-family: var(--font-serif-editorial);
+  font-weight: 600;
+}
+.font-title-lg {
+  font-family: var(--font-sans-ui);
+  font-weight: 600;
+}
+.font-title-md {
+  font-family: var(--font-sans-ui);
+  font-weight: 600;
+}
+.font-body-lg {
+  font-family: var(--font-sans-ui);
+  font-weight: 400;
+}
+.font-body-md {
+  font-family: var(--font-sans-ui);
+  font-weight: 400;
+}
+.font-body-sm {
+  font-family: var(--font-sans-ui);
+  font-weight: 400;
+}
+.font-label-md {
+  font-family: var(--font-sans-ui);
+  font-weight: 600;
+}
+.font-label-sm {
+  font-family: var(--font-sans-ui);
+  font-weight: 600;
+}
+.font-currency-badge {
+  font-family: var(--font-sans-ui);
+  font-weight: 700;
+}
+
+/* Ambient glow & glassmorphism helper classes */
+.glass-card {
+  background: rgba(255, 253, 249, 0.82);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(225, 29, 72, 0.08);
+  box-shadow: 0 8px 24px -4px rgba(41, 37, 36, 0.05), 0 2px 6px -1px rgba(225, 29, 72, 0.03);
+}
+
+.glass-modal {
+  background: rgba(255, 253, 249, 0.94);
+  backdrop-filter: blur(24px);
+  border: 1px solid rgba(225, 29, 72, 0.12);
+  box-shadow: 0 20px 32px -6px rgba(41, 37, 36, 0.12);
+}
+
+.rose-glow-btn {
+  background: linear-gradient(135deg, #f43f5e 0%, #e11d48 100%);
+  box-shadow: 0 12px 28px -4px rgba(225, 29, 72, 0.25);
+  transition: all 0.2s ease-in-out;
+}
+.rose-glow-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 16px 32px -4px rgba(225, 29, 72, 0.35);
+}
+
+/* Hide scrollbar */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
