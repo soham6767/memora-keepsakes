@@ -5,6 +5,7 @@ import Link from "next/link";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import VoiceNotePlayer from "@/components/VoiceNotePlayer";
+import { OCCASIONS_CONFIG, OccasionType } from "@/lib/types";
 import {
   Heart,
   Sparkles,
@@ -19,42 +20,12 @@ import {
   Clock,
   MapPin,
   Flame,
+  Check,
 } from "lucide-react";
 
 export default function LandingPage() {
-  const [activeOccasion, setActiveOccasion] = useState<"anniversary" | "birthday" | "distance" | "love">("anniversary");
+  const [activeOccasion, setActiveOccasion] = useState<OccasionType>("anniversary");
   const [openFaq, setOpenFaq] = useState<number | null>(0);
-
-  const occasionsData = {
-    anniversary: {
-      title: "Anniversary Keepsakes",
-      subtitle: "Relive every month, rain walk, café date, and chapter together.",
-      badge: "Most Popular ❤️",
-      image: "https://images.unsplash.com/photo-1518199266791-5375a83190b7?q=80&w=800&auto=format&fit=crop",
-      quote: "“1 year with you felt like 100 sweet afternoons.”",
-    },
-    birthday: {
-      title: "Midnight Birthday Surprises",
-      subtitle: "Set a tear-away date lock that unlocks automatically at 12:00 AM.",
-      badge: "Midnight Lock ⏰",
-      image: "https://images.unsplash.com/photo-1530103862676-de8c9debad1d?q=80&w=800&auto=format&fit=crop",
-      quote: "“Happy Birthday to my favorite human in the world!”",
-    },
-    distance: {
-      title: "Long-Distance Love Letters",
-      subtitle: "Bridge the miles with voice notes, shared countdowns, and photo maps.",
-      badge: "Miles Apart ✈️",
-      image: "https://images.unsplash.com/photo-1510414842594-a61c69b5ae57?q=80&w=800&auto=format&fit=crop",
-      quote: "“Distance means so little when someone means so much.”",
-    },
-    love: {
-      title: "Quiet Romantic Confessions",
-      subtitle: "Write the unspoken words you have always wanted them to keep.",
-      badge: "Handwritten Letters ✉️",
-      image: "https://images.unsplash.com/photo-1529156069898-49953e39b3ac?q=80&w=800&auto=format&fit=crop",
-      quote: "“Just wanted you to know how deeply you are loved.”",
-    },
-  };
 
   const faqs = [
     {
@@ -74,6 +45,8 @@ export default function LandingPage() {
       a: "Yes! Memories are unlisted and accessible only by your custom link. You can also add an optional passkey password.",
     },
   ];
+
+  const occasionsList = Object.keys(OCCASIONS_CONFIG) as OccasionType[];
 
   return (
     <div className="min-h-screen bg-[#fff8f5] text-[#1e1b19] flex flex-col font-sans">
@@ -107,11 +80,28 @@ export default function LandingPage() {
 
               {/* Subheading */}
               <p className="text-base sm:text-lg text-[#5c3f40] max-w-2xl mx-auto leading-relaxed font-normal">
-                Create a beautiful private digital experience filled with your photos, words, voice notes, and moments — made especially for someone you love.
+                Choose from 4 beautifully crafted experiences — Anniversaries, Midnight Birthdays, Long-Distance Love, and Romantic Letters — made especially for someone you cherish.
               </p>
 
+              {/* Quick Occasion Shortcut Pills */}
+              <div className="flex flex-wrap items-center justify-center gap-2 pt-2">
+                {occasionsList.map((occKey) => {
+                  const occ = OCCASIONS_CONFIG[occKey];
+                  return (
+                    <Link
+                      key={occKey}
+                      href={`/create?occasion=${occKey}`}
+                      className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-white border border-[#e5bdbe]/50 text-xs font-semibold text-[#1e1b19] hover:border-[#e11d48] hover:text-[#e11d48] shadow-sm transition-all"
+                    >
+                      <span>{occ.emoji}</span>
+                      <span>{occ.title.replace(" Keepsakes", "").replace(" Surprises", "")}</span>
+                    </Link>
+                  );
+                })}
+              </div>
+
               {/* CTA Buttons */}
-              <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-2">
+              <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
                 <Link
                   href="/create"
                   className="w-full sm:w-auto inline-flex items-center justify-center gap-2 text-base font-semibold bg-gradient-to-r from-[#e11d48] to-[#b80035] text-white px-8 py-3.5 rounded-full shadow-lg shadow-[#e11d48]/25 hover:-translate-y-0.5 transition-all"
@@ -152,7 +142,7 @@ export default function LandingPage() {
                   </div>
                 </div>
                 <span>
-                  Loved by <strong className="text-[#1e1b19]">1,000+ memory makers</strong> for anniversaries & everyday love.
+                  Loved by <strong className="text-[#1e1b19]">1,000+ memory makers</strong> across India & worldwide.
                 </span>
               </div>
             </div>
@@ -257,11 +247,11 @@ export default function LandingPage() {
                   </span>
                   <h3 className="font-title-lg text-xl text-[#1e1b19]">Choose your occasion</h3>
                   <p className="text-sm text-[#5c3f40] leading-relaxed">
-                    Pick a warm aesthetic template tailored for anniversaries, birthdays, long distance, or quiet love notes.
+                    Pick from 4 dedicated aesthetics: Anniversary, Birthday Midnight Surprise, Long-Distance, or Romantic Letters.
                   </p>
                 </div>
                 <div className="pt-4 flex items-center gap-2 text-[#e11d48] font-semibold text-sm">
-                  <Sparkles className="w-4 h-4" /> Curated templates
+                  <Sparkles className="w-4 h-4" /> 4 Curated experiences
                 </div>
               </div>
 
@@ -273,7 +263,7 @@ export default function LandingPage() {
                   </span>
                   <h3 className="font-title-lg text-xl text-[#1e1b19]">Add your memories</h3>
                   <p className="text-sm text-[#5c3f40] leading-relaxed">
-                    Upload special photos, record a voice note, pinpoint milestone dates, and write the unspoken letter.
+                    Upload gallery photos with unconstrained dimensions, record a voice note, pinpoint milestone dates, and write your letter.
                   </p>
                 </div>
                 <div className="pt-4 flex items-center gap-2 text-[#6b38d4] font-semibold text-sm">
@@ -294,7 +284,7 @@ export default function LandingPage() {
                   </div>
                   <h3 className="font-title-lg text-xl text-[#1e1b19]">Share the surprise</h3>
                   <p className="text-sm text-[#5c3f40] leading-relaxed">
-                    Get your private shareable link. Send it over chat, print a QR code keepsake card, or schedule a midnight unlock!
+                    Pay once via direct UPI, get your instant live link, send over WhatsApp, or print the keepsake QR card.
                   </p>
                 </div>
                 <div className="pt-4 flex items-center gap-2 text-[#815100] font-semibold text-sm">
@@ -304,71 +294,187 @@ export default function LandingPage() {
             </div>
           </section>
 
-          {/* 3. OCCASIONS SHOWCASE */}
-          <section id="occasions" className="max-w-[1240px] mx-auto px-4 md:px-8 py-16">
-            <div className="text-center max-w-xl mx-auto mb-10 space-y-2">
+          {/* 3. 4 DEDICATED OCCASIONS SHOWCASE (SEPARATED INTERFACE) */}
+          <section id="occasions" className="max-w-[1240px] mx-auto px-4 md:px-8 py-20 border-t border-[#e5bdbe]/30">
+            <div className="text-center max-w-2xl mx-auto mb-16 space-y-3">
               <span className="text-xs uppercase tracking-widest text-[#e11d48] font-bold">
-                Every Milestone Counts
+                Tailored Romantic Sanctuaries
               </span>
               <h2 className="font-headline-lg text-3xl md:text-5xl text-[#1e1b19]">
-                Made for every special moment.
+                4 Distinct Keepsake Experiences
               </h2>
+              <p className="text-sm sm:text-base text-[#5c3f40]">
+                Each occasion features its own dedicated color palette, custom interactive widgets, and romantic atmosphere.
+              </p>
             </div>
 
-            {/* Tabs */}
-            <div className="flex flex-wrap items-center justify-center gap-3 mb-10">
-              {(
-                [
-                  { key: "anniversary", label: "Anniversary" },
-                  { key: "birthday", label: "Birthday Midnight Surprise" },
-                  { key: "distance", label: "Long Distance" },
-                  { key: "love", label: "Romantic Letter" },
-                ] as const
-              ).map((tab) => (
-                <button
-                  key={tab.key}
-                  onClick={() => setActiveOccasion(tab.key)}
-                  className={`px-5 py-2.5 rounded-full text-sm font-semibold transition-all ${
-                    activeOccasion === tab.key
-                      ? "bg-[#e11d48] text-white shadow-md shadow-[#e11d48]/20"
-                      : "bg-white text-[#5c3f40] border border-[#e5bdbe]/40 hover:bg-[#faf2ee]"
-                  }`}
-                >
-                  {tab.label}
-                </button>
-              ))}
+            {/* 4 LARGE SEPARATED CARDS GRID */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-16">
+              {occasionsList.map((occKey) => {
+                const occ = OCCASIONS_CONFIG[occKey];
+                return (
+                  <div
+                    key={occKey}
+                    className={`rounded-3xl p-8 bg-white border-2 ${occ.cardBorder} shadow-lg hover:shadow-2xl transition-all duration-300 flex flex-col justify-between space-y-6 text-left relative overflow-hidden group`}
+                  >
+                    <div className="space-y-4">
+                      {/* Badge & Emoji */}
+                      <div className="flex items-center justify-between">
+                        <span className="text-3xl">{occ.emoji}</span>
+                        <span
+                          className={`px-3.5 py-1 rounded-full text-xs font-bold ${occ.badgeBg} ${occ.badgeText}`}
+                        >
+                          {occ.badge}
+                        </span>
+                      </div>
+
+                      {/* Title & Tagline */}
+                      <div>
+                        <h3 className="font-headline-md text-2xl md:text-3xl text-[#1e1b19] group-hover:text-[#e11d48] transition-colors">
+                          {occ.title}
+                        </h3>
+                        <p className="text-xs font-semibold text-[#815100] uppercase tracking-wide mt-1">
+                          {occ.tagline}
+                        </p>
+                      </div>
+
+                      {/* Image Preview with Unconstrained Height */}
+                      <div className="relative h-56 rounded-2xl overflow-hidden shadow-inner border border-[#e5bdbe]/30">
+                        <img
+                          src={occ.image}
+                          alt={occ.title}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent flex items-end p-4">
+                          <p className="text-white text-xs italic font-serif">
+                            {occ.quote}
+                          </p>
+                        </div>
+                      </div>
+
+                      {/* Subtitle */}
+                      <p className="text-sm text-[#5c3f40] leading-relaxed">
+                        {occ.subtitle}
+                      </p>
+
+                      {/* Dedicated Features List */}
+                      <ul className="space-y-2 pt-2 border-t border-[#faf2ee]">
+                        {occ.features.map((feature, fIdx) => (
+                          <li key={fIdx} className="flex items-center gap-2 text-xs font-medium text-[#1e1b19]">
+                            <CheckCircle2
+                              className="w-4 h-4 shrink-0"
+                              style={{ color: occ.primaryColor }}
+                            />
+                            <span>{feature}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+
+                    {/* Direct Action Link */}
+                    <div className="pt-4 border-t border-[#faf2ee]">
+                      <Link
+                        href={`/create?occasion=${occ.id}`}
+                        className="w-full py-3.5 px-6 rounded-full text-white font-bold text-sm shadow-md hover:scale-102 transition-all flex items-center justify-center gap-2"
+                        style={{ backgroundColor: occ.primaryColor }}
+                      >
+                        <span>Start {occ.title.replace(" Keepsakes", "").replace(" Surprises", "")}</span>
+                        <ArrowRight className="w-4 h-4" />
+                      </Link>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
 
-            {/* Active Occasion Feature Card */}
-            <div className="bg-[#f4ece8] rounded-3xl p-8 md:p-12 border border-[#e5bdbe]/40 grid grid-cols-1 md:grid-cols-2 gap-8 items-center text-left shadow-lg">
-              <div className="space-y-5">
-                <span className="inline-block px-3 py-1 rounded-full bg-[#ffddb8] text-[#2a1700] text-xs font-bold">
-                  {occasionsData[activeOccasion].badge}
-                </span>
-                <h3 className="font-headline-lg text-3xl md:text-4xl text-[#1e1b19]">
-                  {occasionsData[activeOccasion].title}
-                </h3>
-                <p className="text-base text-[#5c3f40] leading-relaxed">
-                  {occasionsData[activeOccasion].subtitle}
-                </p>
-                <div className="p-4 rounded-2xl bg-white/80 border border-[#e11d48]/15 italic text-sm text-[#b80035]">
-                  {occasionsData[activeOccasion].quote}
+            {/* INTERACTIVE COMPARISON DEEP-DIVE SWITCHER */}
+            <div className="bg-[#faf2ee] rounded-3xl p-6 md:p-10 border border-[#e5bdbe]/40 text-left space-y-6">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div>
+                  <span className="text-xs uppercase tracking-widest text-[#e11d48] font-bold">
+                    Interactive Comparison
+                  </span>
+                  <h3 className="font-headline-md text-2xl text-[#1e1b19]">
+                    Preview & Choose Your Vibe
+                  </h3>
                 </div>
-                <Link
-                  href="/create"
-                  className="inline-flex items-center gap-2 text-sm font-semibold bg-[#e11d48] text-white px-6 py-3 rounded-full shadow-md hover:bg-[#b80035] transition-colors"
-                >
-                  <span>Build this keepsake</span>
-                  <ArrowRight className="w-4 h-4" />
-                </Link>
+
+                {/* Tabs */}
+                <div className="flex flex-wrap gap-2">
+                  {occasionsList.map((key) => {
+                    const occ = OCCASIONS_CONFIG[key];
+                    const isSelected = activeOccasion === key;
+                    return (
+                      <button
+                        key={key}
+                        onClick={() => setActiveOccasion(key)}
+                        className={`px-4 py-2 rounded-full text-xs font-bold transition-all flex items-center gap-1.5 ${
+                          isSelected
+                            ? "bg-[#e11d48] text-white shadow-md shadow-[#e11d48]/20"
+                            : "bg-white text-[#5c3f40] hover:text-[#1e1b19] border border-[#e5bdbe]/40"
+                        }`}
+                      >
+                        <span>{occ.emoji}</span>
+                        <span>{occ.title.replace(" Keepsakes", "").replace(" Surprises", "")}</span>
+                      </button>
+                    );
+                  })}
+                </div>
               </div>
 
-              <div className="relative h-80 rounded-2xl overflow-hidden shadow-xl border-4 border-white">
-                <img
-                  src={occasionsData[activeOccasion].image}
-                  alt={occasionsData[activeOccasion].title}
-                  className="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
-                />
+              {/* Active Occasion Feature Deep Dive */}
+              <div className="bg-white rounded-2xl p-6 md:p-8 border border-[#e5bdbe]/40 grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+                <div className="space-y-4">
+                  <div className="flex items-center gap-2">
+                    <span
+                      className={`px-3 py-1 rounded-full text-xs font-bold ${OCCASIONS_CONFIG[activeOccasion].badgeBg} ${OCCASIONS_CONFIG[activeOccasion].badgeText}`}
+                    >
+                      {OCCASIONS_CONFIG[activeOccasion].badge}
+                    </span>
+                    <span className="text-xs text-[#815100] font-semibold">
+                      ₹149 one-time lifetime link
+                    </span>
+                  </div>
+
+                  <h4 className="font-headline-lg text-2xl md:text-3xl text-[#1e1b19]">
+                    {OCCASIONS_CONFIG[activeOccasion].title}
+                  </h4>
+                  <p className="text-sm text-[#5c3f40] leading-relaxed">
+                    {OCCASIONS_CONFIG[activeOccasion].subtitle}
+                  </p>
+
+                  <div className="p-4 rounded-xl bg-[#faf2ee] border border-[#e11d48]/15 italic text-xs text-[#b80035]">
+                    {OCCASIONS_CONFIG[activeOccasion].quote}
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <p className="text-xs font-bold text-[#1e1b19] uppercase tracking-wide">Included in this template:</p>
+                    {OCCASIONS_CONFIG[activeOccasion].features.map((feat, fIdx) => (
+                      <p key={fIdx} className="text-xs text-[#5c3f40] flex items-center gap-2">
+                        <Check className="w-3.5 h-3.5 text-[#e11d48]" /> {feat}
+                      </p>
+                    ))}
+                  </div>
+
+                  <div className="pt-2">
+                    <Link
+                      href={`/create?occasion=${OCCASIONS_CONFIG[activeOccasion].id}`}
+                      className="inline-flex items-center gap-2 text-sm font-bold text-white px-7 py-3 rounded-full shadow-md hover:scale-105 transition-transform"
+                      style={{ backgroundColor: OCCASIONS_CONFIG[activeOccasion].primaryColor }}
+                    >
+                      <span>Build This Keepsake Now</span>
+                      <ArrowRight className="w-4 h-4" />
+                    </Link>
+                  </div>
+                </div>
+
+                <div className="relative h-72 md:h-80 rounded-2xl overflow-hidden shadow-lg border-2 border-[#e5bdbe]/40">
+                  <img
+                    src={OCCASIONS_CONFIG[activeOccasion].image}
+                    alt={OCCASIONS_CONFIG[activeOccasion].title}
+                    className="w-full h-full object-cover"
+                  />
+                </div>
               </div>
             </div>
           </section>
@@ -380,7 +486,7 @@ export default function LandingPage() {
                 Transparent & Honest
               </span>
               <h2 className="font-headline-lg text-3xl md:text-5xl text-[#1e1b19]">
-                One simple price. Forever memories.
+                One simple price for all 4 occasions.
               </h2>
             </div>
 
@@ -396,7 +502,7 @@ export default function LandingPage() {
                   <span className="text-sm font-semibold text-[#5c3f40]">one-time fee</span>
                 </div>
                 <p className="text-xs text-[#78716c]">
-                  Pay once, keep forever. No recurring monthly subscriptions.
+                  Pay once via UPI, keep forever. No monthly recurring bills.
                 </p>
               </div>
 
@@ -404,12 +510,13 @@ export default function LandingPage() {
 
               <ul className="space-y-3 text-sm text-[#1e1b19] font-medium">
                 {[
-                  "Unlimited photo uploads & captions",
-                  "Voice note audio player with visualizer",
-                  "Tear-away date lock (midnight unlock)",
-                  "Custom shareable link (memora.love/name)",
-                  "Floating heart & hug micro-reactions",
-                  "Printable keepsake QR Code generator",
+                  "Choice of all 4 occasion templates",
+                  "Unlimited gallery photos (any dimensions/ratio)",
+                  "Voice note audio player with waveform",
+                  "Midnight tear-away date lock countdown",
+                  "Instant private shareable link",
+                  "Floating heart & emotion micro-reactions",
+                  "Printable keepsake QR code card",
                 ].map((item, idx) => (
                   <li key={idx} className="flex items-center gap-2.5">
                     <CheckCircle2 className="w-5 h-5 text-[#e11d48] shrink-0" />
@@ -468,7 +575,7 @@ export default function LandingPage() {
                   Ready to make them smile?
                 </h2>
                 <p className="text-base md:text-lg text-white/90">
-                  It takes less than 5 minutes to build a keepsake they will treasure forever.
+                  Pick your occasion, add your photos and heartfelt letter, and unlock their surprise in minutes.
                 </p>
                 <Link
                   href="/create"

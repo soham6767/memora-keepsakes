@@ -1,16 +1,24 @@
 "use client";
 
-import { useState, ChangeEvent } from "react";
-import { useRouter } from "next/navigation";
+import { useState, useEffect, ChangeEvent, Suspense } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import UpiPaymentModal from "@/components/UpiPaymentModal";
 import { saveMemory } from "@/lib/storage";
-import { MemoryData, MemoryMoment, ThemeTemplate, THEME_TEMPLATES_CONFIG } from "@/lib/types";
+import {
+  MemoryData,
+  MemoryMoment,
+  ThemeTemplate,
+  THEME_TEMPLATES_CONFIG,
+  OCCASIONS_CONFIG,
+  OccasionType,
+} from "@/lib/types";
 import {
   Heart,
   Sparkles,
   ArrowLeft,
+  ArrowRight,
   Upload,
   Plus,
   Trash2,
@@ -18,32 +26,30 @@ import {
   Mic,
   Image as ImageIcon,
   CheckCircle2,
-  ShieldCheck,
-  Edit3,
+  Calendar,
+  Gift,
+  Check,
 } from "lucide-react";
 
-export default function CreateWizardPage() {
+function CreateWizardContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [step, setStep] = useState<1 | 2 | 3 | 4>(1);
   const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
 
   // Form State
   const [senderName, setSenderName] = useState("Soham");
   const [recipientName, setRecipientName] = useState("Viddhi");
-  const [occasion, setOccasion] = useState<"anniversary" | "birthday" | "love_letter" | "milestone">("anniversary");
+  const [occasion, setOccasion] = useState<OccasionType>("anniversary");
   const [themeTemplate, setThemeTemplate] = useState<ThemeTemplate>("rose");
-  const [title, setTitle] = useState("Viddhi & Soham — 1 Year Together");
-  const [headline, setHeadline] = useState("365 Days of Laughing, Rain Walks & Endless Chai");
+  const [title, setTitle] = useState(OCCASIONS_CONFIG.anniversary.defaultTitle);
+  const [headline, setHeadline] = useState(OCCASIONS_CONFIG.anniversary.defaultHeadline);
   const [merchantUpiId, setMerchantUpiId] = useState("memora@upi");
 
-  const [letter, setLetter] = useState(
-    "I still remember how you laughed when it started pouring in Bandra and we both dropped our umbrellas. From late-night coffee talks to exploring hidden street cafes, every single day with you feels like my favorite chapter."
-  );
+  const [letter, setLetter] = useState(OCCASIONS_CONFIG.anniversary.defaultLetter);
 
   // Cover Image (Unconstrained dimensions, local gallery upload supported)
-  const [coverImage, setCoverImage] = useState(
-    "https://images.unsplash.com/photo-1518199266791-5375a83190b7?q=80&w=1200&auto=format&fit=crop"
-  );
+  const [coverImage, setCoverImage] = useState(OCCASIONS_CONFIG.anniversary.image);
   const [audioVoiceNoteUrl, setAudioVoiceNoteUrl] = useState(
     "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3"
   );
@@ -53,6 +59,33 @@ export default function CreateWizardPage() {
 
   const [isLocked, setIsLocked] = useState(false);
   const [unlockDate, setUnlockDate] = useState("2026-10-01T00:00");
+
+  // Read URL query parameter for occasion
+  useEffect(() => {
+    const occParam = searchParams.get("occasion") as OccasionType | null;
+    if (occParam && OCCASIONS_CONFIG[occParam]) {
+      handleSelectOccasion(occParam);
+    }
+  }, [searchParams]);
+
+  const handleSelectOccasion = (selectedOcc: OccasionType) => {
+    const config = OCCASIONS_CONFIG[selectedOcc];
+    setOccasion(selectedOcc);
+    setThemeTemplate(config.themeTemplate);
+    setTitle(config.defaultTitle);
+    setHeadline(config.defaultHeadline);
+    setLetter(config.defaultLetter);
+    setCoverImage(config.image);
+
+    if (selectedOcc === "birthday") {
+      setIsLocked(true);
+      setVoiceNoteCaption("Midnight birthday wish recorded for you 🎂");
+    } else if (selectedOcc === "distance") {
+      setVoiceNoteCaption("Voice note sent across the miles late at night ✈️");
+    } else {
+      setVoiceNoteCaption("Voice note recorded under the Bandra promenade rain shelter...");
+    }
+  };
 
   const [moments, setMoments] = useState<MemoryMoment[]>([
     {
@@ -157,6 +190,8 @@ export default function CreateWizardPage() {
     router.push(`/m/${uniqueId}`);
   };
 
+  const occasionsList = Object.keys(OCCASIONS_CONFIG) as OccasionType[];
+
   return (
     <div className="min-h-screen bg-[#fff8f5] text-[#1e1b19] flex flex-col font-sans">
       <Navbar />
@@ -168,10 +203,10 @@ export default function CreateWizardPage() {
             <Sparkles className="w-3.5 h-3.5" /> Step {step} of 4 — Create Keepsake
           </div>
           <h1 className="font-headline-lg text-3xl md:text-4xl text-[#1e1b19]">
-            {step === 1 && "Choose Theme Template & Cover Photo"}
-            {step === 2 && "Sender, Recipient & Letter"}
-            {step === 3 && "Gallery Photo Moments & Voice Note"}
-            {step === 4 && "Review & Direct UPI Payment"}
+            {step === 1 && "1. Choose Your Occasion & Theme"}
+            {step === 2 && "2. Sender, Recipient & Words"}
+            {step === 3 && "3. Gallery Photos & Voice Note"}
+            {step === 4 && "4. Review & Direct UPI Payment"}
           </h1>
 
           <div className="flex items-center justify-center gap-2 max-w-xs mx-auto">
@@ -186,46 +221,63 @@ export default function CreateWizardPage() {
           </div>
         </div>
 
-        {/* STEP 1: CUTE THEMES & UNCONSTRAINED COVER PHOTO */}
+        {/* STEP 1: 4 SEPARATED DEDICATED OCCASION CARDS & THEME */}
         {step === 1 && (
           <div className="bg-white rounded-3xl p-6 md:p-10 shadow-xl border border-[#e5bdbe]/40 space-y-8 text-left">
-            {/* 4 CUTE THEMES SELECTOR */}
-            <div>
-              <label className="block text-sm font-bold text-[#1e1b19] mb-3">
-                Select Aesthetic Theme Template (4 Cute Styles)
-              </label>
+            {/* 4 DEDICATED OCCASIONS SELECTION */}
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <label className="block text-sm font-bold text-[#1e1b19]">
+                  Step 1: Choose Occasion Experience
+                </label>
+                <span className="text-xs text-[#815100] font-semibold">
+                  Selected: {OCCASIONS_CONFIG[occasion].title}
+                </span>
+              </div>
+
+              {/* 4 SEPARATED LARGE OCCASION CARDS */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {(
-                  Object.keys(THEME_TEMPLATES_CONFIG) as ThemeTemplate[]
-                ).map((key) => {
-                  const tmpl = THEME_TEMPLATES_CONFIG[key];
-                  const isSelected = themeTemplate === key;
+                {occasionsList.map((occKey) => {
+                  const occ = OCCASIONS_CONFIG[occKey];
+                  const isSelected = occasion === occKey;
                   return (
                     <button
-                      key={key}
+                      key={occKey}
                       type="button"
-                      onClick={() => setThemeTemplate(key)}
-                      className={`p-5 rounded-2xl border text-left transition-all relative overflow-hidden flex flex-col justify-between space-y-3 ${
+                      onClick={() => handleSelectOccasion(occKey)}
+                      className={`p-5 rounded-2xl border-2 text-left transition-all relative overflow-hidden flex flex-col justify-between space-y-3 ${
                         isSelected
-                          ? "border-[#e11d48] ring-2 ring-[#e11d48]/30 shadow-md bg-gradient-to-br " +
-                            tmpl.accentGlow
-                          : "border-[#e7e5e4] bg-[#faf2ee] hover:bg-white"
+                          ? "border-[#e11d48] ring-2 ring-[#e11d48]/20 shadow-md bg-[#faf2ee]"
+                          : "border-[#e7e5e4] bg-white hover:border-[#e5bdbe] hover:bg-[#faf2ee]/50"
                       }`}
                     >
                       <div className="flex items-center justify-between">
-                        <span className="text-2xl">{tmpl.emoji}</span>
+                        <span className="text-3xl">{occ.emoji}</span>
                         <span
-                          className="px-2.5 py-0.5 rounded-full text-[11px] font-bold text-white shadow-sm"
-                          style={{ backgroundColor: tmpl.primaryColor }}
+                          className={`px-3 py-0.5 rounded-full text-xs font-bold ${occ.badgeBg} ${occ.badgeText}`}
                         >
-                          {tmpl.badge}
+                          {occ.badge}
                         </span>
                       </div>
+
                       <div>
                         <h4 className="font-headline-sm text-lg font-bold text-[#1e1b19]">
-                          {tmpl.name}
+                          {occ.title}
                         </h4>
-                        <p className="text-xs text-[#5c3f40] mt-1">{tmpl.description}</p>
+                        <p className="text-xs text-[#5c3f40] mt-1 leading-relaxed">
+                          {occ.subtitle}
+                        </p>
+                      </div>
+
+                      <div className="pt-2 border-t border-[#e5bdbe]/20 flex items-center justify-between text-[11px] font-semibold">
+                        <span style={{ color: occ.primaryColor }}>
+                          {occ.tagline}
+                        </span>
+                        {isSelected && (
+                          <span className="flex items-center gap-1 text-[#e11d48] font-bold">
+                            <Check className="w-3.5 h-3.5" /> Selected
+                          </span>
+                        )}
                       </div>
                     </button>
                   );
@@ -233,35 +285,38 @@ export default function CreateWizardPage() {
               </div>
             </div>
 
-            {/* OCCASION */}
-            <div>
+            {/* 4 CUTE THEMES SELECTOR */}
+            <div className="pt-4 border-t border-[#e5bdbe]/40">
               <label className="block text-sm font-bold text-[#1e1b19] mb-3">
-                Select Occasion
+                Aesthetic Color Theme
               </label>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                {[
-                  { id: "anniversary", label: "Anniversary", emoji: "❤️" },
-                  { id: "birthday", label: "Birthday Surprise", emoji: "🎂" },
-                  { id: "distance", label: "Long Distance", emoji: "✈️" },
-                  { id: "love_letter", label: "Romantic Letter", emoji: "✉️" },
-                ].map((occ) => (
-                  <button
-                    key={occ.id}
-                    type="button"
-                    onClick={() => setOccasion(occ.id as any)}
-                    className={`p-4 rounded-2xl border text-center transition-all flex flex-col items-center gap-2 ${
-                      occasion === occ.id
-                        ? "border-[#e11d48] bg-[#ffdada]/30 text-[#b80035] font-bold shadow-sm"
-                        : "border-[#e7e5e4] text-[#5c3f40] hover:bg-[#faf2ee]"
-                    }`}
-                  >
-                    <span className="text-2xl">{occ.emoji}</span>
-                    <span className="text-xs">{occ.label}</span>
-                  </button>
-                ))}
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                {(Object.keys(THEME_TEMPLATES_CONFIG) as ThemeTemplate[]).map((key) => {
+                  const tmpl = THEME_TEMPLATES_CONFIG[key];
+                  const isSelected = themeTemplate === key;
+                  return (
+                    <button
+                      key={key}
+                      type="button"
+                      onClick={() => setThemeTemplate(key)}
+                      className={`p-3.5 rounded-xl border text-center transition-all flex flex-col items-center gap-1.5 ${
+                        isSelected
+                          ? "border-[#e11d48] ring-2 ring-[#e11d48]/20 shadow-sm bg-white"
+                          : "border-[#e7e5e4] bg-[#faf2ee] hover:bg-white"
+                      }`}
+                    >
+                      <div
+                        className="w-5 h-5 rounded-full shadow-sm"
+                        style={{ backgroundColor: tmpl.primaryColor }}
+                      />
+                      <span className="text-xs font-bold text-[#1e1b19]">{tmpl.name}</span>
+                    </button>
+                  );
+                })}
               </div>
             </div>
 
+            {/* KEEPSAKE TITLE */}
             <div>
               <label className="block text-sm font-bold text-[#1e1b19] mb-1">
                 Keepsake Page Title
@@ -278,7 +333,7 @@ export default function CreateWizardPage() {
             {/* UNCONSTRAINED COVER PHOTO GALLERY PICKER */}
             <div className="space-y-3">
               <label className="block text-sm font-bold text-[#1e1b19]">
-                Select Cover Photo (Any dimensions, width & height, no crop limit)
+                Cover Photo (No width or length limit — any gallery photo)
               </label>
 
               <div className="flex flex-col sm:flex-row items-center gap-4">
@@ -312,7 +367,7 @@ export default function CreateWizardPage() {
                     className="w-full h-auto max-h-[600px] object-contain rounded-xl"
                   />
                   <div className="absolute top-4 right-4 px-3 py-1 rounded-full bg-black/60 text-white text-[11px] font-bold backdrop-blur-md">
-                    Fluid Dimensions Preview
+                    Cover Preview (Unconstrained)
                   </div>
                 </div>
               )}
@@ -323,7 +378,7 @@ export default function CreateWizardPage() {
                 onClick={() => setStep(2)}
                 className="inline-flex items-center gap-2 text-sm font-semibold bg-[#e11d48] text-white px-8 py-3 rounded-full shadow-md hover:bg-[#b80035] transition-colors"
               >
-                Next Step →
+                Next Step: Sender & Letter →
               </button>
             </div>
           </div>
@@ -376,7 +431,7 @@ export default function CreateWizardPage() {
                 Your Personal Letter / Message
               </label>
               <textarea
-                rows={5}
+                rows={6}
                 value={letter}
                 onChange={(e) => setLetter(e.target.value)}
                 placeholder="Write your sentimental note..."
@@ -395,7 +450,7 @@ export default function CreateWizardPage() {
                 onClick={() => setStep(3)}
                 className="inline-flex items-center gap-2 text-sm font-semibold bg-[#e11d48] text-white px-8 py-3 rounded-full shadow-md hover:bg-[#b80035] transition-colors"
               >
-                Next Step →
+                Next Step: Photos & Voice Note →
               </button>
             </div>
           </div>
@@ -406,9 +461,14 @@ export default function CreateWizardPage() {
           <div className="bg-white rounded-3xl p-6 md:p-10 shadow-xl border border-[#e5bdbe]/40 space-y-8 text-left">
             <div>
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-base font-bold text-[#1e1b19]">
-                  Photo Moments Gallery ({moments.length})
-                </h3>
+                <div>
+                  <h3 className="text-base font-bold text-[#1e1b19]">
+                    Photo Moments Gallery ({moments.length})
+                  </h3>
+                  <p className="text-xs text-[#5c3f40]">
+                    Upload photos directly from your phone/computer gallery without any size or dimension restrictions.
+                  </p>
+                </div>
                 <button
                   type="button"
                   onClick={addMoment}
@@ -538,9 +598,12 @@ export default function CreateWizardPage() {
               <div className="flex items-center justify-between">
                 <h3 className="font-headline-md text-2xl text-[#1e1b19]">{title}</h3>
                 <span className="px-3 py-1 rounded-full bg-[#ffddb8] text-[#2a1700] font-bold text-xs">
-                  Theme: {THEME_TEMPLATES_CONFIG[themeTemplate].name}
+                  {OCCASIONS_CONFIG[occasion].badge}
                 </span>
               </div>
+              <p className="text-xs text-[#5c3f40]">
+                Occasion: <strong>{OCCASIONS_CONFIG[occasion].title}</strong> • Theme: <strong>{THEME_TEMPLATES_CONFIG[themeTemplate].name}</strong>
+              </p>
               <p className="text-xs text-[#5c3f40]">
                 From: <strong>{senderName}</strong> • To: <strong>{recipientName}</strong>
               </p>
@@ -597,6 +660,9 @@ export default function CreateWizardPage() {
                     onChange={(e) => setUnlockDate(e.target.value)}
                     className="px-4 py-2.5 rounded-xl bg-white border border-[#e7e5e4] text-sm"
                   />
+                  <p className="text-[11px] text-[#78716c]">
+                    The recipient will see a countdown clock until this exact date/time!
+                  </p>
                 </div>
               )}
             </div>
@@ -632,5 +698,21 @@ export default function CreateWizardPage() {
 
       <Footer />
     </div>
+  );
+}
+
+export default function CreateWizardPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen flex items-center justify-center bg-[#fff8f5]">
+          <div className="animate-spin text-[#e11d48]">
+            <Heart className="w-8 h-8 fill-current" />
+          </div>
+        </div>
+      }
+    >
+      <CreateWizardContent />
+    </Suspense>
   );
 }

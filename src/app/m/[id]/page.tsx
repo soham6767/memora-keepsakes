@@ -7,7 +7,7 @@ import Footer from "@/components/Footer";
 import VoiceNotePlayer from "@/components/VoiceNotePlayer";
 import FloatingReactions from "@/components/FloatingReactions";
 import { getMemoryById } from "@/lib/storage";
-import { MemoryData, THEME_TEMPLATES_CONFIG, ThemeTemplate } from "@/lib/types";
+import { MemoryData, THEME_TEMPLATES_CONFIG, ThemeTemplate, OCCASIONS_CONFIG, OccasionType } from "@/lib/types";
 import {
   Heart,
   Sparkles,
@@ -18,6 +18,8 @@ import {
   Copy,
   Check,
   Flame,
+  Gift,
+  Send,
 } from "lucide-react";
 
 export default function RecipientMemoryPage({
@@ -76,6 +78,8 @@ export default function RecipientMemoryPage({
 
   const activeThemeKey: ThemeTemplate = memory.themeTemplate || "rose";
   const themeConfig = THEME_TEMPLATES_CONFIG[activeThemeKey];
+  const occKey = (memory.occasion as OccasionType) in OCCASIONS_CONFIG ? (memory.occasion as OccasionType) : "anniversary";
+  const occConfig = OCCASIONS_CONFIG[occKey];
 
   const handleCopyLink = () => {
     if (typeof window !== "undefined") {
@@ -110,7 +114,7 @@ export default function RecipientMemoryPage({
               This keepsake is locked for {memory.recipientName}
             </h1>
             <p className="text-sm text-[#5c3f40] max-w-md mx-auto">
-              {memory.senderName} has scheduled this memory to unlock automatically on{" "}
+              {memory.senderName} has scheduled this {occConfig?.title || "memory"} to unlock automatically on{" "}
               {new Date(memory.unlockDate!).toLocaleString()}.
             </p>
           </div>
@@ -138,12 +142,18 @@ export default function RecipientMemoryPage({
 
             {/* HERO COVER SECTION */}
             <section className="max-w-[1000px] mx-auto px-4 text-center space-y-6">
-              <div
-                className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-white text-xs font-bold shadow-md"
-                style={{ backgroundColor: themeConfig.primaryColor }}
-              >
-                <span>{themeConfig.emoji}</span>
-                <span>Made especially for {memory.recipientName}</span>
+              {/* Occasion & Recipient Pill */}
+              <div className="flex flex-wrap items-center justify-center gap-2">
+                <span
+                  className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full text-white text-xs font-bold shadow-md"
+                  style={{ backgroundColor: themeConfig.primaryColor }}
+                >
+                  <span>{occConfig?.emoji || themeConfig.emoji}</span>
+                  <span>{occConfig?.badge || themeConfig.badge}</span>
+                </span>
+                <span className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-white/90 text-xs font-bold text-[#1e1b19] border border-[#e5bdbe]/40 shadow-sm">
+                  Made for {memory.recipientName} ❤️
+                </span>
               </div>
 
               <h1 className="font-headline-lg text-4xl md:text-6xl text-[#1e1b19] tracking-tight">
@@ -157,7 +167,7 @@ export default function RecipientMemoryPage({
                 "{memory.headline}"
               </p>
 
-              {/* Sender Badge */}
+              {/* Sender & Occasion Info Badge */}
               <div className="text-xs text-[#78716c] flex items-center justify-center gap-2">
                 <span>Created by <strong>{memory.senderName}</strong></span>
                 <span>•</span>
@@ -165,6 +175,8 @@ export default function RecipientMemoryPage({
                   <Calendar className="w-3.5 h-3.5" style={{ color: themeConfig.primaryColor }} />{" "}
                   {memory.createdAt.slice(0, 10)}
                 </span>
+                <span>•</span>
+                <span className="font-semibold text-[#1e1b19]">{occConfig?.title || "Digital Keepsake"}</span>
               </div>
 
               {/* UNCONSTRAINED FLUID COVER PHOTO (ANY LENGTH/WIDTH) */}
@@ -174,20 +186,20 @@ export default function RecipientMemoryPage({
                   alt={memory.title}
                   className="w-full h-auto max-h-[850px] object-contain rounded-2xl"
                 />
-                <div className="absolute bottom-4 left-4 right-4 bg-black/50 backdrop-blur-md p-4 rounded-xl text-white text-left flex items-center justify-between">
+                <div className="absolute bottom-4 left-4 right-4 bg-black/55 backdrop-blur-md p-4 rounded-xl text-white text-left flex items-center justify-between">
                   <div>
                     <span className="text-[10px] uppercase font-bold text-[#ffddb8] tracking-wider block">
-                      Digital Keepsake
+                      {occConfig?.tagline || "Digital Keepsake"}
                     </span>
                     <h2 className="font-headline-md text-xl font-bold">
                       {memory.recipientName} & {memory.senderName}
                     </h2>
                   </div>
                   <span
-                    className="px-3 py-1 rounded-full text-[11px] font-bold text-white"
+                    className="px-3 py-1 rounded-full text-[11px] font-bold text-white shadow-sm"
                     style={{ backgroundColor: themeConfig.primaryColor }}
                   >
-                    {themeConfig.badge}
+                    {occConfig?.badge || themeConfig.badge}
                   </span>
                 </div>
               </div>
@@ -215,7 +227,7 @@ export default function RecipientMemoryPage({
                     className="text-xs font-bold uppercase tracking-wider block"
                     style={{ color: themeConfig.primaryColor }}
                   >
-                    A Letter For You
+                    A Letter For You • {occConfig?.title || "Keepsake"}
                   </span>
                   <h3 className="font-headline-md text-3xl text-[#1e1b19]">
                     Dearest {memory.recipientName},
